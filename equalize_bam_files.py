@@ -21,7 +21,7 @@ def get_num_reads(filename):
         #e.g. pysam.AlignmentFile(filename,'rb').count(read_callback=...)
         num_reads = reduce(lambda x, y: x + y,
                            [eval('+'.join(line.rstrip('\n').split('\t')[2:]))
-                            for line in pysam.idxstats(filename).split('\n') if len(l) > 0])
+                            for line in pysam.idxstats(filename).split('\n') if len(line) > 0])
 
     except:
         sys.stderr.write("Unable to count reads in file: %s" % filename)
