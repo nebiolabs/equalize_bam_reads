@@ -36,12 +36,14 @@ if len(list(files_by_size.values())) < 2:
 min_read_count = min(files_by_size.values())
 
 smallest_file = list(file for file, size in (list(files_by_size.items())) if size == min_read_count)[0]
+sys.stderr.write(("downsampling all bams to %s reads" % min_read_count))
 
 files_by_frac = {file: (min_read_count * 1.0 / size) for file, size in list(files_by_size.items()) if file != smallest_file}
 
 for file, frac in list(files_by_frac.items()):
     output_file = os.path.splitext(file)[0] + ".even_cov.bam"
-    print("%s: %s" % (file, frac))
-    call("sambamba view -p -f bam -s %s %s -o %s" % (frac, file, output_file))
+    print("sambamba view -t 4 -f bam -s %s %s -o %s" % (frac, file, output_file))
 
-os.symlink(smallest_file, os.path.splitext(smallest_file)[0] + ".even_cov.bam")  # smallest file needs no downsampling
+# smallest file needs no downsampling
+print("ln %s %s.even_cov.bam"  % (smallest_file, os.path.splitext(smallest_file)[0]))
+print("ln %s.bai %s.even_cov.bam.bai" % (smallest_file, os.path.splitext(smallest_file)[0]))
