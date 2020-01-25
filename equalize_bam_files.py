@@ -19,6 +19,7 @@ def get_num_reads(filename):
                            [eval('+'.join(l.rstrip('\n').split('\t')[2:])) for l in pysam.idxstats(filename).split('\n') if len(l) > 0])
     except:
         sys.stderr.write("Unable to count reads in file: %s" % filename)
+        exit(1)
     return num_reads
 
 
