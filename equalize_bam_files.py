@@ -9,6 +9,7 @@ import pysam
 import os
 from subprocess import call
 from distutils.spawn import find_executable
+from functools import reduce
 
 
 def get_num_reads(filename):
@@ -27,18 +28,17 @@ if not find_executable('sambamba'):
 
 files_by_size = {file: get_num_reads(file) for file in sys.argv[1:]}
 
-if len(files_by_size.values()) < 2:
+if len(list(files_by_size.values())) < 2:
     sys.stderr.write("multiple bam files should be specified\n")
     exit(1)
 
 min_read_count = min(files_by_size.values())
 
-smallest_file = list(file for file, size in (files_by_size.items()) if size == min_read_count)[0]
-print("downsampling all bams to %s reads" % min_read_count)
+smallest_file = list(file for file, size in (list(files_by_size.items())) if size == min_read_count)[0]
 
-files_by_frac = {file: (min_read_count * 1.0 / size) for file, size in files_by_size.items() if file != smallest_file}
+files_by_frac = {file: (min_read_count * 1.0 / size) for file, size in list(files_by_size.items()) if file != smallest_file}
 
-for file, frac in files_by_frac.items():
+for file, frac in list(files_by_frac.items()):
     output_file = os.path.splitext(file)[0] + ".even_cov.bam"
     print("%s: %s" % (file, frac))
     call("sambamba view -p -f bam -s %s %s -o %s" % (frac, file, output_file))
